@@ -1,4 +1,4 @@
-# frontend
+# activity frontend
 
 ## Project setup
 ```

@@ -5,13 +5,13 @@ import en from './en.json'
 import ru from './ru.json'
 
 Vue.use(VueI18n)
-const locale = 'ru'//process.env.LANG
+const locale = process.env.VUE_APP_LANG
 
 const messages = {
 	en: en,
 	ru: ru,
 }
-console.log(process.env.LANG)
+
 const i18n = new VueI18n({
 	locale,
 	messages

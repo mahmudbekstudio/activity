@@ -1,41 +1,56 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import Home from './views/Home'
-import About from './views/About'
-import Main from './views/layout/Main'
-import Login from './views/pages/Login'
+
+import Auth from './services/Auth'
+import routes from './config/routes'
+import defaultMeta from './config/meta'
 
 Vue.use(Router)
 
-export default new Router({
-  mode: 'history',
-  base: process.env.BASE_URL,
-  routes: [
-    {
-      path: '/',
-      name: 'home',
-      component: Home
-    },
-    {
-      path: '/about',
-      name: 'about',
-      // route level code-splitting
-      // this generates a separate chunk (about.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      //component: () => import(
-      // webpackChunkName: "about"
-    //'./views/About.vue')
-      component: About
-    },
-    {
-      path: '/test1',
-      name: 'test1',
-      component: Main
-    },
-    {
-      path: '/login',
-      name: 'login',
-      component: Login
-    }
-  ]
+
+
+const router = new Router({
+	mode: process.env.VUE_APP_ROUTER_MODE,
+	base: process.env.BASE_URL,
+	routes: routes.map(route => {
+        route.meta = route.meta || {}
+
+	    return {
+            name: route.name,
+            path: route.path,
+            component: route.component,
+            meta: Object.assign({}, defaultMeta, route.meta),
+            beforeEnter: (to, from, next) => {
+                console.log(to.matched);
+                // Setup some per-page stuff.
+                document.title = route.title
+                /*store.dispatch('common/updateTitle', route.title)
+                store.dispatch('common/updateLayout', route.layout)
+
+                // Auth navigation guard.
+                if (!route.isPublic) return guardRoute(to, from, next)*/
+
+                next()
+            }
+        }
+    })
 })
+
+router.beforeEach((to, from, next) => {
+    if (to.matched.some(record => record.meta.requiresAuth)) {
+        // this route requires auth, check if logged in
+        // if not, redirect to login page.
+        /*if (!Auth.loggedIn()) {
+            next({
+                path: '/login',
+                query: { redirect: to.fullPath }
+            })
+        } else {*/
+            next()
+        //}
+    } else {
+        next() // make sure to always call next()!
+    }
+})
+
+export default router
